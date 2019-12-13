@@ -32,7 +32,6 @@ func welcomeHandler(w http.ResponseWriter, req *http.Request) {
 
 // profileHandler shows protected user content.
 func profileHandler(w http.ResponseWriter, req *http.Request) {
-
 	val, _ := sessionManager.Get(req)
 	username := val.Values["username"]
 
