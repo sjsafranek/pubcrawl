@@ -16,16 +16,21 @@ type Meta struct {
 
 type Response struct {
 	// Confident bool    `json:"confident"`
-	Venues []Venue `json:"venues"`
+	Venues     []Venue    `json:"venues"`
+	Categories []Category `json:"categories"`
 }
 
 type Venue struct {
-	ID       string   `json:"id"`
-	Name     string   `json:"name"`
-	Location Location `json:"location"`
-	// "categories": [{
-	// 		"id": "5370f356bcbc57f1066c94c2",
-	// 		"name": "Beer Store",
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	Location   Location   `json:"location"`
+	Categories []Category `json:"categories"`
+}
+
+type Category struct {
+	ID         string     `json:"id"`
+	Name       string     `json:"name"`
+	Categories []Category `json:"categories"` // handles sub categories
 	// 		"pluralName": "Beer Stores",
 	// 		"shortName": "Beer Store",
 	// 		"icon": {
@@ -33,7 +38,7 @@ type Venue struct {
 	// 			"suffix": ".png"
 	// 		},
 	// 		"primary": true
-	// 	}]
+
 }
 
 type Location struct {
