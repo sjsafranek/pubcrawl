@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"html/template"
+	// "io/ioutil"
+	"github.com/sjsafranek/logger"
 	"net/http"
-	// "github.com/sjsafranek/logger"
 	// "github.com/sjsafranek/pubcrawl/foursquare"
 )
 
@@ -18,8 +19,15 @@ func welcomeHandler(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/profile", http.StatusFound)
 		return
 	}
-	page, _ := ioutil.ReadFile("home.html")
-	fmt.Fprintf(w, string(page))
+	// page, _ := ioutil.ReadFile("home.html")
+	// fmt.Fprintf(w, string(page))
+
+	t := template.Must(template.ParseFiles("tmpl/global_header.html", "tmpl/global_footer.html", "tmpl/login.html"))
+	err := t.ExecuteTemplate(w, "login", nil)
+	if nil != err {
+		logger.Error(err)
+		apiBasicResponse(w, http.StatusInternalServerError, err)
+	}
 }
 
 // profileHandler shows protected user content.

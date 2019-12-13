@@ -31,6 +31,10 @@ func New(config *Config) *http.ServeMux {
 	mux.Handle("/profile", middleware.Attach(requireLogin(http.HandlerFunc(profileHandler))))
 	mux.Handle("/logout", middleware.Attach(http.HandlerFunc(logoutHandler)))
 
+	// Static files
+	fsvr := http.FileServer(http.Dir("static"))
+	mux.Handle("/static/", http.StripPrefix("/static/", fsvr))
+
 	// 1. Register Login and Callback handlers
 	oauth2Config := &oauth2.Config{
 		ClientID:     config.FacebookClientID,
