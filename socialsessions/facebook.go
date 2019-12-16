@@ -40,6 +40,7 @@ func (self *SessionManager) issueFacebookSession() http.Handler {
 		session := self.issueSession()
 		session.Values["userid"] = facebookUser.ID
 		session.Values["username"] = facebookUser.Name
+		session.Values["useremail"] = facebookUser.Email
 		session.Values["usertype"] = "facebook"
 		session.Save(w)
 		http.Redirect(w, req, "/profile", http.StatusFound)

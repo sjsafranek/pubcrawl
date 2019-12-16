@@ -1,6 +1,7 @@
 package foursquare
 
 import (
+	"encoding/json"
 	"strings"
 )
 
@@ -25,6 +26,18 @@ type Venue struct {
 	Name       string     `json:"name"`
 	Location   Location   `json:"location"`
 	Categories []Category `json:"categories"`
+}
+
+func (self *Venue) Marshal() (string, error) {
+	b, err := json.Marshal(self)
+	if nil != err {
+		return "", err
+	}
+	return string(b), err
+}
+
+func (self *Venue) Unmarshal(data string) error {
+	return json.Unmarshal([]byte(data), self)
 }
 
 type Category struct {

@@ -33,12 +33,22 @@ func welcomeHandler(w http.ResponseWriter, req *http.Request) {
 // profileHandler shows protected user content.
 func profileHandler(w http.ResponseWriter, req *http.Request) {
 	val, _ := sessionManager.Get(req)
-	username := val.Values["username"]
+	username := val.Values["username"].(string)
+	usertype := val.Values["usertype"].(string)
+	userid := val.Values["userid"].(string)
+	useremail := val.Values["useremail"].(string)
 
 	args := make(map[string]interface{})
 	args["username"] = username
 
-	err := PROFILE_TEMPLATE.ExecuteTemplate(w, "profile", args)
+	user, err := db.CreateUserIfNotExists(useremail, useremail)
+	if nil != err {
+		logger.Error(err)
+		apiBasicResponse(w, http.StatusInternalServerError, err)
+	}
+	user.CreateSocialAccountIfNotExists(userid, username, usertype)
+
+	err = PROFILE_TEMPLATE.ExecuteTemplate(w, "profile", args)
 	if nil != err {
 		logger.Error(err)
 		apiBasicResponse(w, http.StatusInternalServerError, err)

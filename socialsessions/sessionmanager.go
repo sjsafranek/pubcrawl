@@ -35,9 +35,9 @@ func (self *SessionManager) destroySession(w http.ResponseWriter) {
 
 // logoutHandler destroys the session on POSTs and redirects to home.
 func (self *SessionManager) LogoutHandler(w http.ResponseWriter, req *http.Request) {
-	if req.Method == "POST" {
-		self.destroySession(w)
-	}
+	// if req.Method == "POST" {
+	self.destroySession(w)
+	// }
 	http.Redirect(w, req, "/", http.StatusFound)
 }
 

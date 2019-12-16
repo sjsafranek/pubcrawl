@@ -17,7 +17,8 @@ func New(config *Config) *http.ServeMux {
 
 	mux.Handle("/", middleware.Attach(http.HandlerFunc(welcomeHandler)))
 	mux.Handle("/profile", middleware.Attach(sessionManager.RequireLogin(http.HandlerFunc(profileHandler))))
-	mux.Handle("/api/v1/crawl", middleware.Attach(sessionManager.RequireLogin(http.HandlerFunc(createPubCrawl))))
+	mux.Handle("/api/v1/new_crawl", middleware.Attach(sessionManager.RequireLogin(http.HandlerFunc(newPubCrawlHandler))))
+	mux.Handle("/api/v1/get_crawl", middleware.Attach(sessionManager.RequireLogin(http.HandlerFunc(getPubCrawlHandler))))
 	mux.Handle("/logout", middleware.Attach(http.HandlerFunc(sessionManager.LogoutHandler)))
 
 	// Static files
