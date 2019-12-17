@@ -28,20 +28,20 @@ set client_min_messages to 'warning';
 
 DROP TABLE IF EXISTS up_votes CASCADE;
 CREATE TABLE up_votes (
-	owner		VARCHAR,
+	voter		VARCHAR,
 	crawl_id 	VARCHAR,
 	venue_id	VARCHAR,
-	FOREIGN KEY (owner) REFERENCES users(username) ON DELETE CASCADE,
+	FOREIGN KEY (voter) REFERENCES users(username) ON DELETE CASCADE,
 	FOREIGN KEY (crawl_id) REFERENCES crawls(id) ON DELETE CASCADE,
 	FOREIGN KEY (venue_id, crawl_id) REFERENCES venues(id, crawl_id) ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS down_votes CASCADE;
 CREATE TABLE down_votes (
-	owner 		VARCHAR,
+	voter 		VARCHAR,
 	crawl_id 	VARCHAR,
 	venue_id	VARCHAR,
-	FOREIGN KEY (owner) REFERENCES users(username) ON DELETE CASCADE,
+	FOREIGN KEY (voter) REFERENCES users(username) ON DELETE CASCADE,
 	FOREIGN KEY (crawl_id) REFERENCES crawls(id) ON DELETE CASCADE,
 	FOREIGN KEY (venue_id, crawl_id) REFERENCES venues(id, crawl_id) ON DELETE CASCADE
 );

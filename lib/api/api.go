@@ -239,6 +239,18 @@ func (self *Api) Do(request *Request) (*Response, error) {
 				return crawl.Delete()
 			})
 
+		case "up_vote":
+			// {"method":"up_vote","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}
+			return self.fetchUser(request, func(user *database.User) error {
+				return user.UpVoteVenue(request.CrawlId, request.VenueId)
+			})
+
+		case "down_vote":
+			// {"method":"down_vote","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}
+			return self.fetchUser(request, func(user *database.User) error {
+				return user.DownVoteVenue(request.CrawlId, request.VenueId)
+			})
+
 		default:
 			return errors.New("method not found")
 

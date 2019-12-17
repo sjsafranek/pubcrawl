@@ -16,15 +16,8 @@ type Request struct {
 	Longitude float64 `json:"longitude,omitempty"`
 	Name      string  `json:"name,omitempty"`
 	CrawlId   string  `json:"crawl_id,omitempty"`
-	// Type        string           `json:"type,omitempty"`
-	// PlaceName   string           `json:"placename,omitempty"`
-	// PlaceId     int              `json:"place_id,ompitempty"`
-	// Place       *database.Place  `json:"place,omitempty"`
-	// Limit       int              `json:"limit,omitempty"`
-	// Filter      *database.Filter `json:"filter,ompitempty"`
-	Callback string `json:"callback,ompitempty"`
-	// PlaceStatus string           `json:"place_status,ompitempty"`
-	// Polygon   *geojson.Geometry `json:"polygon,omitempty"`
+	VenueId   string  `json:"venue_id,omitempty"`
+	Callback  string  `json:"callback,ompitempty"`
 }
 
 func (self *Request) Unmarshal(data string) error {
@@ -32,11 +25,8 @@ func (self *Request) Unmarshal(data string) error {
 }
 
 type ResponseData struct {
-	Users []*database.User `json:"users,omitempty"`
-	User  *database.User   `json:"user,omitempty"`
-	// Places   *geojson.FeatureCollection `json:"places,omitempty"`
-	// Location *gogeocoder.Location       `json:"location,omitempty"`
-	// Place    *database.Place            `json:"place,omitempty"`
+	Users  []*database.User  `json:"users,omitempty"`
+	User   *database.User    `json:"user,omitempty"`
 	Crawl  *database.Crawl   `json:"crawl,omitempty"`
 	Crawls []*database.Crawl `json:"crawls,omitempty"`
 }
@@ -47,7 +37,6 @@ type Response struct {
 	Error    string       `json:"error,omitempty"`
 	Data     ResponseData `json:"data,omitempty"`
 	Callback string       `json:"callback,omitempty"`
-	// CaptchaID string       `json:"captchaID,omitempty"`
 }
 
 func (self *Response) Marshal() (string, error) {

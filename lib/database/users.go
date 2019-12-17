@@ -176,3 +176,16 @@ func (self *User) GetCrawls() ([]*Crawl, error) {
 
 	return crawls, nil
 }
+
+// App functions
+func (self *User) UpVoteVenue(crawl_id, venue_id string) error {
+	return self.db.Insert(`
+		INSERT INTO up_votes(voter, crawl_id, venue_id) VALUES($1, $2, $3);
+	`, self.Username, crawl_id, venue_id)
+}
+
+func (self *User) DownVoteVenue(crawl_id, venue_id string) error {
+	return self.db.Insert(`
+		INSERT INTO down_votes(voter, crawl_id, venue_id) VALUES($1, $2, $3);
+	`, self.Username, crawl_id, venue_id)
+}
