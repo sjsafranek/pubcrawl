@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/sjsafranek/lemur/middleware"
-	"github.com/sjsafranek/pubcrawl/socialsessions"
+	"github.com/sjsafranek/pubcrawl/lib/config"
+	"github.com/sjsafranek/pubcrawl/lib/socialsessions"
 )
 
 var sessionManager = socialsessions.New("chocolate-ship", "cookies")
 
 // New returns a new ServeMux with app routes.
-func New(config *Config) *http.ServeMux {
+func New(conf *config.Config) *http.ServeMux {
 
 	// build app
 	mux := http.NewServeMux()
@@ -27,8 +28,8 @@ func New(config *Config) *http.ServeMux {
 
 	// get facebook login handlers
 	loginHandler, callbackHandler := sessionManager.GetFacebookLoginHandlers(
-		config.FacebookClientID,
-		config.FacebookClientSecret,
+		conf.Facebook.ClientID,
+		conf.Facebook.ClientSecret,
 		"http://localhost:8080/facebook/callback")
 
 	// attach facebook login handlers to mux

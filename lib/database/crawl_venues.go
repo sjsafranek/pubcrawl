@@ -3,7 +3,7 @@ package database
 import (
 	"encoding/json"
 
-	"github.com/sjsafranek/pubcrawl/foursquare"
+	"github.com/sjsafranek/pubcrawl/lib/foursquare"
 )
 
 type Venue foursquare.Venue

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/sjsafranek/pubcrawl/foursquare"
+	"github.com/sjsafranek/pubcrawl/lib/foursquare"
 )
 
 type Crawl struct {

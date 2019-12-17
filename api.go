@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/sjsafranek/logger"
+	"github.com/sjsafranek/pubcrawl/lib/api"
 )
 
 // # /api/v1/crawl?longitude=-123.088000&latitude=44.046174
@@ -29,7 +30,7 @@ var searchCategeories = []string{"50327c8591d4c4b30a586d5d", "4bf58dd8d48988d116
 // profileHandler shows protected user content.
 func newPubCrawlHandler(w http.ResponseWriter, req *http.Request) {
 
-	response := Response{}
+	response := &api.Response{}
 
 	val, _ := sessionManager.Get(req)
 	username := val.Values["username"].(string)
@@ -54,40 +55,27 @@ func newPubCrawlHandler(w http.ResponseWriter, req *http.Request) {
 
 		longitude, err := strconv.ParseFloat(longitudeString[0], 64)
 		latitude, err := strconv.ParseFloat(latitudeString[0], 64)
-
 		crawlName, _ := req.URL.Query()["name"]
 
-		venues, err := apiClient.SearchVenues(longitude, latitude, searchCategeories)
-		if nil != err {
-			return http.StatusInternalServerError, err
-		}
-
-		user, err := db.CreateUserIfNotExists(useremail, useremail)
+		user, err := rpcApi.GetDatabase().CreateUserIfNotExists(useremail, useremail)
 		if nil != err {
 			return http.StatusInternalServerError, err
 		}
 		user.CreateSocialAccountIfNotExists(userid, username, usertype)
 
-		crawl, err := user.CreateCrawl(crawlName[0])
-		if nil != err {
-			return http.StatusInternalServerError, err
+		resp, err := rpcApi.Do(&api.Request{
+			Method:    "create_crawl",
+			Username:  user.Username,
+			Longitude: longitude,
+			Latitude:  latitude,
+			Name:      crawlName[0]})
 
-		}
-
-		err = crawl.AddVenues(venues)
-		if nil != err {
-			return http.StatusInternalServerError, err
-		}
-		// crawl.GetVenues()
-		crawl, err = user.GetCrawl(crawl.ID)
 		if nil != err {
 			return http.StatusInternalServerError, err
 		}
 
-		response.Data.PubCrawl = crawl
-
+		response = resp
 		return http.StatusOK, nil
-
 	}()
 
 	if nil != err {
@@ -103,7 +91,7 @@ func newPubCrawlHandler(w http.ResponseWriter, req *http.Request) {
 
 func getPubCrawlHandler(w http.ResponseWriter, req *http.Request) {
 
-	response := Response{}
+	response := api.Response{}
 
 	val, _ := sessionManager.Get(req)
 	// username := val.Values["username"].(string)

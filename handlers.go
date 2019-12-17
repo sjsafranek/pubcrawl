@@ -41,7 +41,7 @@ func profileHandler(w http.ResponseWriter, req *http.Request) {
 	args := make(map[string]interface{})
 	args["username"] = username
 
-	user, err := db.CreateUserIfNotExists(useremail, useremail)
+	user, err := rpcApi.GetDatabase().CreateUserIfNotExists(useremail, useremail)
 	if nil != err {
 		logger.Error(err)
 		apiBasicResponse(w, http.StatusInternalServerError, err)

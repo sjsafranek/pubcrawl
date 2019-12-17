@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strings"
 	"time"
+	// "github.com/sjsafranek/logger"
 )
 
 type User struct {
@@ -127,13 +128,12 @@ func (self *User) CreateCrawl(name string) (*Crawl, error) {
 
 func (self *User) GetCrawl(crawl_id string) (*Crawl, error) {
 	return self.getCrawl(`
-		SELECT crawls_json FROM crawls_view WHERE crawl_id = $1
+		SELECT crawls_json FROM crawls_view WHERE id = $1 AND is_deleted = false
 	`, crawl_id)
 }
 
 func (self *User) getCrawl(query string, args ...interface{}) (*Crawl, error) {
 	var crawl Crawl
-
 	var temp string
 	err := self.db.QueryRow(query, args...).Scan(&temp)
 	if nil != err {
@@ -152,17 +152,20 @@ func (self *User) getCrawl(query string, args ...interface{}) (*Crawl, error) {
 func (self *User) GetCrawls() ([]*Crawl, error) {
 	var crawls []*Crawl
 	query := `
-		SELECT json_agg(c) FROM (
-			SELECT
-				crawls_json
-			FROM crawls_view
-			WHERE
-				owner = $1
-		) c;
+		SELECT
+			json_agg(crawls_json)
+		FROM crawls_view
+		WHERE owner = $1
+		AND is_deleted = false
 	`
 
 	var temp string
-	err := self.db.QueryRow(query, self.Email).Scan(&temp)
+	err := self.db.QueryRow(query, self.Username).Scan(&temp)
+	if nil != err {
+		return crawls, err
+	}
+
+	err = json.Unmarshal([]byte(temp), &crawls)
 	if nil != err {
 		return crawls, err
 	}

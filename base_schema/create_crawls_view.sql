@@ -14,7 +14,7 @@ CREATE OR REPLACE VIEW crawls_view AS (
 			'venues', venues_view.venues_json
         ) AS crawls_json
     FROM crawls
-	INNER JOIN venues_view
+	LEFT JOIN venues_view
 		ON crawls.id = venues_view.crawl_id
     WHERE
         is_deleted = false

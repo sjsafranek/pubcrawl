@@ -2,10 +2,10 @@ package database
 
 import (
 	"database/sql"
-	// "encoding/json"
+	"encoding/json"
 	// "errors"
+	"fmt"
 	"strings"
-	// "fmt"
 
 	_ "github.com/lib/pq"
 	"github.com/sjsafranek/logger"
@@ -80,20 +80,64 @@ func (self *Database) CreateUser(email, username string) (*User, error) {
 func (self *Database) CreateUserIfNotExists(email, username string) (*User, error) {
 	user, err := self.CreateUser(email, username)
 	if nil != err && strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
-		return self.GetUserByEmail(email)
+		return self.GetUserByUsername(username)
 	}
 	return user, nil
 }
 
 //
-func (self *Database) GetUserByEmail(email string) (*User, error) {
-	query := `
+func (self *Database) getUserBy(key, value string) (*User, error) {
+	query := fmt.Sprintf(`
 		SELECT
 			user_json
 		FROM users_view
-		WHERE email = $1;
-	`
-	return self.getUser(query, email)
+		WHERE %v = $1;
+	`, key)
+	return self.getUser(query, value)
+}
+
+func (self *Database) GetUserByEmail(email string) (*User, error) {
+	return self.getUserBy("email", email)
+}
+
+func (self *Database) GetUserByUsername(username string) (*User, error) {
+	return self.getUserBy("username", username)
+}
+
+func (self *Database) GetUserByApikey(apikey string) (*User, error) {
+	return self.getUserBy("apikey", apikey)
+}
+
+func (self *Database) GetUsers() ([]*User, error) {
+	var users []*User
+	return users, self.Exec(func(db *sql.DB) error {
+
+		rows, err := db.Query(`
+			SELECT
+				json_agg(user_json)
+			FROM users_view
+			WHERE
+				is_deleted = false
+			;`)
+		if nil != err {
+			return err
+		}
+
+		for rows.Next() {
+			var temp string
+			rows.Scan(&temp)
+			err = json.Unmarshal([]byte(temp), &users)
+			if nil != err {
+				return err
+			}
+		}
+
+		for i := range users {
+			users[i].db = self
+		}
+
+		return nil
+	})
 }
 
 func (self *Database) Exec(clbk func(*sql.DB) error) error {
