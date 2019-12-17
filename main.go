@@ -45,6 +45,9 @@ var (
 func main() {
 	// read credentials from environment variables if available
 	conf := &config.Config{
+		// Api: config.Api{
+		// 	PublicMethods: []string{"up_vote", "down_vote"},
+		// },
 		Facebook: config.Facebook{
 			ClientID:     FACEBOOK_CLIENT_ID,
 			ClientSecret: FACEBOOK_CLIENT_SECRET,
