@@ -16,6 +16,7 @@ import (
 func New(conf *config.Config) *Api {
 	dbConnStr := conf.Database.GetDatabaseConnection()
 	return &Api{
+		config:     conf,
 		db:         database.New(dbConnStr),
 		cache:      ccache.Layered(ccache.Configure()),
 		foursquare: foursquare.New(conf.Foursquare.ClientID, conf.Foursquare.ClientSecret),
@@ -23,9 +24,14 @@ func New(conf *config.Config) *Api {
 }
 
 type Api struct {
+	config     *config.Config
 	db         *database.Database
 	cache      *ccache.LayeredCache
 	foursquare *foursquare.Client
+}
+
+func (self *Api) IsPublicMethod(method string) bool {
+	return self.config.Api.IsPublicMethod(method)
 }
 
 func (self *Api) GetDatabase() *database.Database {

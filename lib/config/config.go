@@ -10,6 +10,20 @@ type Config struct {
 	Foursquare Foursquare
 	Server     Server
 	Database   Database
+	Api        Api
+}
+
+type Api struct {
+	PublicMethods []string
+}
+
+func (self *Api) IsPublicMethod(method string) bool {
+	for _, publicMethod := range self.PublicMethods {
+		if publicMethod == method {
+			return true
+		}
+	}
+	return false
 }
 
 type Server struct {
