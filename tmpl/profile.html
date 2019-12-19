@@ -42,18 +42,18 @@
             .pulsate {
                 -webkit-animation: pulsate 1.5s ease-out;
                 -webkit-animation-iteration-count: infinite;
-                opacity: 0.5;
+                background-color: rgb(198,200,202,0.1);
             }
 
             @-webkit-keyframes pulsate {
                 0% {
-                    opacity: 0.5;
+                    background-color: rgb(198,200,202,0.1);
                 }
                 50% {
-                    opacity: 1.0;
+                    background-color: rgb(198,200,202,1.0);
                 }
                 100% {
-                    opacity: 0.5;
+                    background-color: rgb(198,200,202,0.1);
                 }
             }
 
@@ -178,10 +178,10 @@
                         $('.pub-crawl-venues').scrollTo("#"+venue.id, 800);
                     })
                     .on('mouseover', function(e) {
-                        $('#'+venue.id).addClass('pulsate list-group-item-dark');
+                        $('#'+venue.id).addClass('pulsate');
                     })
                     .on('mouseout', function(e) {
-                        $('#'+venue.id).removeClass('pulsate list-group-item-dark');
+                        $('#'+venue.id).removeClass('pulsate');
                     })
             },
 
