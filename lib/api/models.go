@@ -14,6 +14,8 @@ https://en.wikipedia.org/wiki/JSON-RPC
 
 const VERSION string = "0.0.1"
 
+// TODO NewReqeuest(jdata) Request, error
+
 type BatchRequest []Request
 
 type Request struct {

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"errors"
 	// "fmt"
 	// "strings"
@@ -92,7 +92,8 @@ func (self *Api) getUserByApikey(apikey string) (*database.User, error) {
 
 func (self *Api) DoJSON(jdata string) (*Response, error) {
 	var request Request
-	err := json.Unmarshal([]byte(jdata), &request)
+	// err := json.Unmarshal([]byte(jdata), &request)
+	err := request.Unmarshal(jdata)
 	if nil != err {
 		response := &Response{Status: "err"}
 		response.SetError(err)
