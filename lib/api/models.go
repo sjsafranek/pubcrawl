@@ -12,9 +12,12 @@ Format for JSON RPC
 https://en.wikipedia.org/wiki/JSON-RPC
 */
 
+const VERSION string = "0.0.1"
+
 type Request struct {
-	Method string `json:"method,omitempty"`
-	Params Params `json:"params"`
+	Method  string `json:"method"`
+	Version string `json:"version"`
+	Params  Params `json:"params"`
 }
 
 type Params struct {
@@ -43,6 +46,7 @@ type ResponseData struct {
 
 type Response struct {
 	Status   string       `json:"status"`
+	Version  string       `json:"version,omitempty"`
 	Message  string       `json:"message,omitempty"`
 	Error    string       `json:"error,omitempty"`
 	Data     ResponseData `json:"data,omitempty"`

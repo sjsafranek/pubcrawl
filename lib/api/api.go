@@ -103,6 +103,12 @@ func (self *Api) DoJSON(jdata string) (*Response, error) {
 func (self *Api) Do(request *Request) (*Response, error) {
 	var response Response
 
+	// TODO HANDLE API VERSIONS
+	response.Version = request.Version
+	if "" == response.Version {
+		response.Version = VERSION
+	}
+
 	response.Status = "ok"
 	response.Callback = request.Params.Callback
 
