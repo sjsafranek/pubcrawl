@@ -41,10 +41,10 @@ func (self *Api) GetDatabase() *database.Database {
 func (self *Api) fetchUser(request *Request, clbk func(*database.User) error) error {
 	var user *database.User
 	var err error
-	if "" != request.Apikey {
-		user, err = self.getUserByApikey(request.Apikey)
-	} else if "" != request.Username {
-		user, err = self.getUserByUsername(request.Username)
+	if "" != request.Params.Apikey {
+		user, err = self.getUserByApikey(request.Params.Apikey)
+	} else if "" != request.Params.Username {
+		user, err = self.getUserByUsername(request.Params.Username)
 	} else {
 		err = errors.New("Missing parameters")
 	}
@@ -104,7 +104,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 	var response Response
 
 	response.Status = "ok"
-	response.Callback = request.Callback
+	response.Callback = request.Params.Callback
 
 	err := func() error {
 		switch request.Method {
@@ -125,11 +125,11 @@ func (self *Api) Do(request *Request) (*Response, error) {
 
 		case "create_user":
 			// {"method":"create_user","username": "admin_user" "email":"admin@email.com","password":"1234"}
-			if "" == request.Username {
+			if "" == request.Params.Username {
 				return errors.New("missing parameters")
 			}
 
-			user, err := self.createUser(request.Email, request.Username, request.Password)
+			user, err := self.createUser(request.Params.Email, request.Params.Username, request.Params.Password)
 			if nil != err {
 				return err
 			}
@@ -182,18 +182,18 @@ func (self *Api) Do(request *Request) (*Response, error) {
 			// {"method":"set_password","username":"admin_user","password":"1234"}
 			// {"method":"set_password","apikey":"<apikey>","password":"1234"}
 			return self.fetchUser(request, func(user *database.User) error {
-				return user.SetPassword(request.Password)
+				return user.SetPassword(request.Params.Password)
 			})
 
 		case "create_crawl":
 			// {"method":"create_crawl","username":"sjsafranek@gmail.com","name":"12 bars","longitude":-123.088000,"latitude":44.046174}
 			return self.fetchUser(request, func(user *database.User) error {
-				venues, err := self.foursquare.SearchVenues(request.Longitude, request.Latitude, searchCategeories)
+				venues, err := self.foursquare.SearchVenues(request.Params.Longitude, request.Params.Latitude, searchCategeories)
 				if nil != err {
 					return err
 				}
 
-				crawl, err := user.CreateCrawl(request.Name)
+				crawl, err := user.CreateCrawl(request.Params.Name)
 				if nil != err {
 					return err
 				}
@@ -216,7 +216,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 		case "get_crawl":
 			// {"method":"get_crawl","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10"}
 			return self.fetchUser(request, func(user *database.User) error {
-				crawl, err := user.GetCrawl(request.CrawlId)
+				crawl, err := user.GetCrawl(request.Params.CrawlId)
 				if nil != err {
 					return err
 				}
@@ -238,7 +238,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 		case "delete_crawl":
 			// {"method":"delete_crawl","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10"}
 			return self.fetchUser(request, func(user *database.User) error {
-				crawl, err := user.GetCrawl(request.CrawlId)
+				crawl, err := user.GetCrawl(request.Params.CrawlId)
 				if nil != err {
 					return err
 				}
@@ -248,13 +248,13 @@ func (self *Api) Do(request *Request) (*Response, error) {
 		case "up_vote":
 			// {"method":"up_vote","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}
 			return self.fetchUser(request, func(user *database.User) error {
-				return user.UpVoteVenue(request.CrawlId, request.VenueId)
+				return user.UpVoteVenue(request.Params.CrawlId, request.Params.VenueId)
 			})
 
 		case "down_vote":
 			// {"method":"down_vote","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}
 			return self.fetchUser(request, func(user *database.User) error {
-				return user.DownVoteVenue(request.CrawlId, request.VenueId)
+				return user.DownVoteVenue(request.Params.CrawlId, request.Params.VenueId)
 			})
 
 		default:

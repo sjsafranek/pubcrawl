@@ -64,11 +64,14 @@ func newPubCrawlHandler(w http.ResponseWriter, req *http.Request) {
 		user.CreateSocialAccountIfNotExists(userid, username, usertype)
 
 		resp, err := rpcApi.Do(&api.Request{
-			Method:    "create_crawl",
-			Username:  user.Username,
-			Longitude: longitude,
-			Latitude:  latitude,
-			Name:      crawlName[0]})
+			Method: "create_crawl",
+			Params: api.Params{
+				Username:  user.Username,
+				Longitude: longitude,
+				Latitude:  latitude,
+				Name:      crawlName[0],
+			},
+		})
 
 		if nil != err {
 			return http.StatusInternalServerError, err

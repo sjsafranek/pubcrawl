@@ -6,8 +6,18 @@ import (
 	"github.com/sjsafranek/pubcrawl/lib/database"
 )
 
+/*
+Format for JSON RPC
+
+https://en.wikipedia.org/wiki/JSON-RPC
+*/
+
 type Request struct {
-	Method    string  `json:"method,omitempty"`
+	Method string `json:"method,omitempty"`
+	Params Params `json:"params"`
+}
+
+type Params struct {
 	Email     string  `json:"email,omitempty"`
 	Username  string  `json:"username,omitempty"`
 	Password  string  `json:"password,omitempty"`
