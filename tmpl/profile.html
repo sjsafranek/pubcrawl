@@ -49,17 +49,17 @@
                 0% {
                     color: #2c3e50;
                     opacity: 1.0;
-                    font-weight: 900;
+                    /*font-weight: 900;*/
                 }
                 50% {
                     color: #476481;
                     opacity: 0.5;
-                    font-weight: 600;
+                    /*font-weight: 600;*/
                 }
                 100% {
                     color: #2c3e50;
                     opacity: 1.0;
-                    font-weight: 900;
+                    /*font-weight: 900;*/
                 }
             }
 
@@ -169,6 +169,38 @@
                 );
             }
 
+            App.prototype._createMarker = function(venue, status) {
+                var color = 'visited' == status ? 'red' : 'blue';
+                return L.circleMarker({
+                        lng: venue.location.lng,
+                        lat: venue.location.lat
+                    }, {
+                        radius: 4,
+                        color: color,
+                        fill: color,
+                        weight: 1.5
+                    })
+                    .on('click', function(e){
+                        $('.pub-crawl-venues').scrollTo("#"+venue.id, 800);
+                    })
+                    .on('mouseover', function(e) {
+                        $('#'+venue.id).addClass('pulsate list-group-item-dark');
+                    })
+                    .on('mouseout', function(e) {
+                        $('#'+venue.id).removeClass('pulsate list-group-item-dark');
+                    })
+            },
+
+            App.prototype._createListItem = function(venue) {
+                var self = this;
+                return $('<a>', {href:'#', id: venue.id})
+                            .addClass('list-group-item list-group-item-action')
+                            .append(venue.name||venue.id)
+                            .on('click', function(e) {
+                                self.moveTo(venue);
+                            });
+            },
+
             App.prototype.updatePubCrawlVenues = function(venues) {
                 var self = this;
 
@@ -176,27 +208,15 @@
 
                 venues.visited && $('.pub-crawl-venues').append(
                     venues.visited.map(function(venue){
-                        return $('<a>', {href:'#', id: venue.id})
-                                    .addClass('list-group-item list-group-item-action')
-                                    .append(venue.name||venue.id)
-                                    .on('click', function(e) {
-                                        self.moveTo(venue);
-                                    });
+                        return self._createListItem(venue, 'visited').addClass('disabled');
                     })
                 );
 
                 venues.unvisited && $('.pub-crawl-venues').append(
                     venues.unvisited.map(function(venue){
-                        return $('<a>', {href:'#', id: venue.id})
-                                    .addClass('list-group-item list-group-item-action')
-                                    .append(venue.name||venue.id)
-                                    .on('click', function(e) {
-                                        self.moveTo(venue);
-                                    });
+                        return self._createListItem(venue, 'unvisited');
                     })
                 );
-
-
 
                 this.venuesLayer && this.venuesLayer.remove();
 
@@ -204,46 +224,12 @@
 
                 features = features.concat(
                     venues.visited ? venues.visited.map(function(venue) {
-                        return L.circleMarker({
-                                lng: venue.location.lng,
-                                lat:venue.location.lat
-                            }, {
-                                radius: 4,
-                                color: 'red',
-                                fill: 'red',
-                                weight: 1.5
-                            })
-                            .on('click', function(e){
-                                $('.pub-crawl-venues').scrollTo("#"+venue.id, 800);
-                            })
-                            .on('mouseover', function(e) {
-                                $('#'+venue.id).addClass('pulsate');
-                            })
-                            .on('mouseout', function(e) {
-                                $('#'+venue.id).removeClass('pulsate');
-                            })
+                        return self._createMarker(venue, 'visited');
                     }) : []);
 
                 features = features.concat(
                     venues.unvisited ? venues.unvisited.map(function(venue) {
-                        return L.circleMarker({
-                                lng: venue.location.lng,
-                                lat:venue.location.lat
-                            }, {
-                                radius: 4,
-                                color: 'blue',
-                                fill: 'blue',
-                                weight: 1.5
-                            })
-                            .on('click', function(e){
-                                $('.pub-crawl-venues').scrollTo("#"+venue.id, 800);
-                            })
-                            .on('mouseover', function(e) {
-                                $('#'+venue.id).addClass('pulsate');
-                            })
-                            .on('mouseout', function(e) {
-                                $('#'+venue.id).removeClass('pulsate');
-                            })
+                        return self._createMarker(venue, 'unvisited');
                     }) : []);
 
                 this.venuesLayer = L.featureGroup(features).addTo(this.map);
