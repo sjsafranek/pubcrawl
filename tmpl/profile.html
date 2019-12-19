@@ -8,11 +8,59 @@
 
         {{template "global_header" .}}
 
+        <!-- LeafletJS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+            integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+            crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
+
         <style>
 
-            .logo {
-                padding: 3rem 1.5rem;
-                text-align: center;
+            .body {
+                padding-bottom: 20px;
+            }
+
+            .pub-crawls,
+            .pub-crawl-venues {
+                font-size: 0.8em;
+            }
+
+            .pub-crawl-venues {
+                height: 100%;     /* full height of the content box */
+                max-height: 56em; /* requires an absolute value for height. */
+                overflow-y: scroll;
+            }
+
+            #map {
+                width: auto;
+                height: 400px;
+            }
+
+
+            .pulsate {
+                -webkit-animation: pulsate 1.5s ease-out;
+                -webkit-animation-iteration-count: infinite;
+                opacity: 0.5;
+            }
+
+            @-webkit-keyframes pulsate {
+                0% {
+                    color: #2c3e50;
+                    opacity: 1.0;
+                    font-weight: 900;
+                }
+                50% {
+                    color: #476481;
+                    opacity: 0.5;
+                    font-weight: 600;
+                }
+                100% {
+                    color: #2c3e50;
+                    opacity: 1.0;
+                    font-weight: 900;
+                }
             }
 
         </style>
@@ -22,33 +70,193 @@
 
     <body>
 
+        {{template "navbar" .}}
+
         <div class="container">
 
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col-sm-9 col-md-7 col-lg-5 mx-auto logo">
                     <h1>Pub Crawl</h1>
                 </div>
-            </div>
+            </div> -->
 
             <div class="row">
-                <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-                    {{.username}} logged in!
-
-                    <form action="/logout" method="post">
-                        <button class="btn btn-default" type="submit" value="Logout">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </button>
-                    </form>
+                <div class="col-lg-3">
+                    Pub Crawls
+                    <div class="list-group list-group-flush pub-crawls">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    Venues
+                    <div class="list-group list-group-flush pub-crawl-venues">
+                    </div>
+                </div>
+                <div id="map" class="col">
                 </div>
             </div>
 
-            <div class="row">
-                
-            </div>
 
         </div>
 
         {{template "global_footer" .}}
+
+        <script>
+
+            function test() {
+            	api.fetch(
+            		{
+            			"method": "create_crawl",
+            			"params": {
+            				"longitude": -123.0880,
+            				"latitude": 44.046174,
+            				"name": "test"
+            			}
+            		},
+            		function(err, res) {
+            			console.log(err, res);
+            		}
+            	);
+            }
+
+
+
+            var App = function() {
+
+                this.elements = {
+
+                }
+
+                this.map = L.map('map').setView([0, 0], 2);
+
+                L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                    maxZoom: 18,
+                    id: 'mapbox/streets-v11',
+                    accessToken: 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw'
+                }).addTo(this.map);
+
+                this.venuesLayer;
+
+            }
+
+            App.prototype.moveTo = function(venue) {
+                this.map.setView({
+                                lng: venue.location.lng,
+                                lat:venue.location.lat
+                            }, 17);
+            }
+
+            App.prototype.updatePubCrawls = function() {
+                var self = this;
+                api.fetch(
+                	{
+                		"method": "get_crawls"
+                	},
+                	function(err, res) {
+                		if(err) throw(err);
+                        $('.pub-crawls').empty();
+                        res.data.crawls && $('.pub-crawls').append(
+                            res.data.crawls.map(function(crawl) {
+                                return $('<a>', {href:'#'})
+                                            .addClass('list-group-item list-group-item-action')
+                                            .append(crawl.name||crawl.id)
+                                            .on('click', function(e) {
+                                                self.updatePubCrawlVenues(crawl.venues);
+                                            });
+                            })
+                        );
+                    }
+                );
+            }
+
+            App.prototype.updatePubCrawlVenues = function(venues) {
+                var self = this;
+
+                $('.pub-crawl-venues').empty();
+
+                venues.visited && $('.pub-crawl-venues').append(
+                    venues.visited.map(function(venue){
+                        return $('<a>', {href:'#', id: venue.id})
+                                    .addClass('list-group-item list-group-item-action')
+                                    .append(venue.name||venue.id)
+                                    .on('click', function(e) {
+                                        self.moveTo(venue);
+                                    });
+                    })
+                );
+
+                venues.unvisited && $('.pub-crawl-venues').append(
+                    venues.unvisited.map(function(venue){
+                        return $('<a>', {href:'#', id: venue.id})
+                                    .addClass('list-group-item list-group-item-action')
+                                    .append(venue.name||venue.id)
+                                    .on('click', function(e) {
+                                        self.moveTo(venue);
+                                    });
+                    })
+                );
+
+
+
+                this.venuesLayer && this.venuesLayer.remove();
+
+                var features = [];
+
+                features = features.concat(
+                    venues.visited ? venues.visited.map(function(venue) {
+                        return L.circleMarker({
+                                lng: venue.location.lng,
+                                lat:venue.location.lat
+                            }, {
+                                radius: 4,
+                                color: 'red',
+                                fill: 'red',
+                                weight: 1.5
+                            })
+                            .on('click', function(e){
+                                $('.pub-crawl-venues').scrollTo("#"+venue.id, 800);
+                            })
+                            .on('mouseover', function(e) {
+                                $('#'+venue.id).addClass('pulsate');
+                            })
+                            .on('mouseout', function(e) {
+                                $('#'+venue.id).removeClass('pulsate');
+                            })
+                    }) : []);
+
+                features = features.concat(
+                    venues.unvisited ? venues.unvisited.map(function(venue) {
+                        return L.circleMarker({
+                                lng: venue.location.lng,
+                                lat:venue.location.lat
+                            }, {
+                                radius: 4,
+                                color: 'blue',
+                                fill: 'blue',
+                                weight: 1.5
+                            })
+                            .on('click', function(e){
+                                $('.pub-crawl-venues').scrollTo("#"+venue.id, 800);
+                            })
+                            .on('mouseover', function(e) {
+                                $('#'+venue.id).addClass('pulsate');
+                            })
+                            .on('mouseout', function(e) {
+                                $('#'+venue.id).removeClass('pulsate');
+                            })
+                    }) : []);
+
+                this.venuesLayer = L.featureGroup(features).addTo(this.map);
+                this.map.fitBounds(this.venuesLayer.getBounds());
+
+            }
+
+
+
+            var app = new App();
+            app.updatePubCrawls();
+
+        </script>
 
     </body>
 </html>
