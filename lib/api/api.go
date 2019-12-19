@@ -110,7 +110,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 	}
 
 	response.Status = "ok"
-	response.Callback = request.Params.Callback
+	response.Id = request.Id
 
 	err := func() error {
 		switch request.Method {
@@ -130,7 +130,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 			return nil
 
 		case "create_user":
-			// {"method":"create_user","username": "admin_user" "email":"admin@email.com","password":"1234"}
+			// {"method":"create_user","params":{"username": "admin_user" "email":"admin@email.com","password":"1234"}+
 			if "" == request.Params.Username {
 				return errors.New("missing parameters")
 			}
@@ -153,46 +153,46 @@ func (self *Api) Do(request *Request) (*Response, error) {
 			return nil
 
 		case "get_user":
-			// {"method":"get_user","username":"admin_user"}
-			// {"method":"get_user","apikey":"<apikey>"}
+			// {"method":"get_user","params":{"username":"admin_user"}}
+			// {"method":"get_user","params":{"apikey":"<apikey>"}}
 			return self.fetchUser(request, func(user *database.User) error {
 				response.Data.User = user
 				return nil
 			})
 
 		case "delete_user":
-			// {"method":"delete_user","username":"admin_user"}
-			// {"method":"delete_user","apikey":"<apikey>"}
+			// {"method":"delete_user","params":{"username":"admin_user"}}
+			// {"method":"delete_user","params":{"apikey":"<apikey>"}}
 			return self.fetchUser(request, func(user *database.User) error {
 				self.cache.Delete("user", user.Apikey)
 				return user.Delete()
 			})
 
 		case "activate_user":
-			// {"method":"activate_user","username":"admin_user"}
-			// {"method":"activate_user","apikey":"<apikey>"}
+			// {"method":"activate_user","params":{"username":"admin_user"}}
+			// {"method":"activate_user","params":{"apikey":"<apikey>"}}
 			return self.fetchUser(request, func(user *database.User) error {
 				self.cache.Delete("user", user.Apikey)
 				return user.Activate()
 			})
 
 		case "deactivate_user":
-			// {"method":"deactivate_user","username":"admin_user"}
-			// {"method":"deactivate_user","apikey":"<apikey>"}
+			// {"method":"deactivate_user","params":{"username":"admin_user"}}
+			// {"method":"deactivate_user","params":{"apikey":"<apikey>"}}
 			return self.fetchUser(request, func(user *database.User) error {
 				self.cache.Delete("user", user.Apikey)
 				return user.Deactivate()
 			})
 
 		case "set_password":
-			// {"method":"set_password","username":"admin_user","password":"1234"}
-			// {"method":"set_password","apikey":"<apikey>","password":"1234"}
+			// {"method":"set_password","params":{"username":"admin_user","password":"1234"}}
+			// {"method":"set_password","params":{"apikey":"<apikey>","password":"1234"}}
 			return self.fetchUser(request, func(user *database.User) error {
 				return user.SetPassword(request.Params.Password)
 			})
 
 		case "create_crawl":
-			// {"method":"create_crawl","username":"sjsafranek@gmail.com","name":"12 bars","longitude":-123.088000,"latitude":44.046174}
+			// {"method":"create_crawl","params":{"username":"sjsafranek@gmail.com","name":"12 bars","longitude":-123.088000,"latitude":44.046174}}
 			return self.fetchUser(request, func(user *database.User) error {
 				venues, err := self.foursquare.SearchVenues(request.Params.Longitude, request.Params.Latitude, searchCategeories)
 				if nil != err {
@@ -220,7 +220,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 			})
 
 		case "get_crawl":
-			// {"method":"get_crawl","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10"}
+			// {"method":"get_crawl","params":{"username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10"}}
 			return self.fetchUser(request, func(user *database.User) error {
 				crawl, err := user.GetCrawl(request.Params.CrawlId)
 				if nil != err {
@@ -231,7 +231,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 			})
 
 		case "get_crawls":
-			// {"method":"get_crawls","username":"sjsafranek@gmail.com"}
+			// {"method":"get_crawls","params":{"username":"sjsafranek@gmail.com"}}
 			return self.fetchUser(request, func(user *database.User) error {
 				crawls, err := user.GetCrawls()
 				if nil != err {
@@ -242,7 +242,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 			})
 
 		case "delete_crawl":
-			// {"method":"delete_crawl","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10"}
+			// {"method":"delete_crawl","params":{"username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10"}}
 			return self.fetchUser(request, func(user *database.User) error {
 				crawl, err := user.GetCrawl(request.Params.CrawlId)
 				if nil != err {
@@ -252,13 +252,13 @@ func (self *Api) Do(request *Request) (*Response, error) {
 			})
 
 		case "up_vote":
-			// {"method":"up_vote","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}
+			// {"method":"up_vote","params":{"username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}}
 			return self.fetchUser(request, func(user *database.User) error {
 				return user.UpVoteVenue(request.Params.CrawlId, request.Params.VenueId)
 			})
 
 		case "down_vote":
-			// {"method":"down_vote","username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}
+			// {"method":"down_vote","params":{"username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}}
 			return self.fetchUser(request, func(user *database.User) error {
 				return user.DownVoteVenue(request.Params.CrawlId, request.Params.VenueId)
 			})

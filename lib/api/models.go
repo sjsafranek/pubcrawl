@@ -18,6 +18,7 @@ type Request struct {
 	Method  string `json:"method"`
 	Version string `json:"version"`
 	Params  Params `json:"params"`
+	Id      string `json:"id,ompitempty"`
 }
 
 type Params struct {
@@ -30,7 +31,6 @@ type Params struct {
 	Name      string  `json:"name,omitempty"`
 	CrawlId   string  `json:"crawl_id,omitempty"`
 	VenueId   string  `json:"venue_id,omitempty"`
-	Callback  string  `json:"callback,ompitempty"`
 }
 
 func (self *Request) Unmarshal(data string) error {
@@ -45,12 +45,12 @@ type ResponseData struct {
 }
 
 type Response struct {
-	Status   string       `json:"status"`
-	Version  string       `json:"version,omitempty"`
-	Message  string       `json:"message,omitempty"`
-	Error    string       `json:"error,omitempty"`
-	Data     ResponseData `json:"data,omitempty"`
-	Callback string       `json:"callback,omitempty"`
+	Status  string       `json:"status"`
+	Version string       `json:"version,omitempty"`
+	Message string       `json:"message,omitempty"`
+	Error   string       `json:"error,omitempty"`
+	Data    ResponseData `json:"data,omitempty"`
+	Id      string       `json:"id,omitempty"`
 }
 
 func (self *Response) Marshal() (string, error) {
