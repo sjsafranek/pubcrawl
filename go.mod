@@ -7,6 +7,7 @@ require (
 	github.com/dghubble/sessions v0.1.0
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/websocket v1.4.1
 	github.com/karlseguin/ccache v2.0.3+incompatible
 	github.com/lib/pq v1.2.0
 	github.com/mmcloughlin/geohash v0.9.0

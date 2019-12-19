@@ -14,6 +14,8 @@ https://en.wikipedia.org/wiki/JSON-RPC
 
 const VERSION string = "0.0.1"
 
+type BatchRequest []Request
+
 type Request struct {
 	Method  string `json:"method"`
 	Version string `json:"version"`

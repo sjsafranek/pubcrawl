@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/sjsafranek/lemur/middleware"
+	"github.com/sjsafranek/pubcrawl/lib/clients/websockets"
 	"github.com/sjsafranek/pubcrawl/lib/config"
 	"github.com/sjsafranek/pubcrawl/lib/socialsessions"
 )
@@ -18,8 +19,7 @@ func New(conf *config.Config) *http.ServeMux {
 
 	mux.Handle("/", middleware.Attach(http.HandlerFunc(welcomeHandler)))
 	mux.Handle("/profile", middleware.Attach(sessionManager.RequireLogin(http.HandlerFunc(profileHandler))))
-	mux.Handle("/api", middleware.Attach(sessionManager.RequireLogin(http.HandlerFunc(newPubCrawlHandler))))
-	// mux.Handle("/api/v1/get_crawl", middleware.Attach(sessionManager.RequireLogin(http.HandlerFunc(getPubCrawlHandler))))
+	mux.Handle("/api", middleware.Attach(sessionManager.RequireLogin(http.HandlerFunc(apiHandler))))
 	mux.Handle("/logout", middleware.Attach(http.HandlerFunc(sessionManager.LogoutHandler)))
 
 	// Static files
@@ -35,6 +35,10 @@ func New(conf *config.Config) *http.ServeMux {
 	// attach facebook login handlers to mux
 	mux.Handle("/facebook/login", middleware.Attach(loginHandler))
 	mux.Handle("/facebook/callback", middleware.Attach(callbackHandler))
+
+	// websockets
+	hub, _ := websockets.New(rpcApi)
+	mux.Handle("/ws", middleware.Attach(http.HandlerFunc(hub.WebSocketHandler)))
 
 	return mux
 }

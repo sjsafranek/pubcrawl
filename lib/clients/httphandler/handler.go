@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/sjsafranek/logger"
+	// "github.com/sjsafranek/logger"
 	"github.com/sjsafranek/pubcrawl/lib/api"
 )
 
@@ -56,12 +56,9 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			//  - use request.Unmarshal
 			json.Unmarshal(body, &request)
 
-			// protect against request hijacking!
-			request.Params.Username = useremail
+			// protect against hijacking!
+			request.Params.Username = string(useremail[0])
 			request.Params.Apikey = ""
-
-			logger.Info(string(body))
-			logger.Info(request)
 
 			// run api request
 			response, err := rpcApi.Do(&request)

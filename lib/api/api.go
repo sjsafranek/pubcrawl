@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/karlseguin/ccache"
+	"github.com/sjsafranek/logger"
 	"github.com/sjsafranek/pubcrawl/lib/config"
 	"github.com/sjsafranek/pubcrawl/lib/database"
 	"github.com/sjsafranek/pubcrawl/lib/foursquare"
@@ -105,8 +106,9 @@ func (self *Api) Do(request *Request) (*Response, error) {
 
 	// TODO HANDLE API VERSIONS
 	response.Version = request.Version
-	if "" == response.Version {
+	if "" == request.Version {
 		response.Version = VERSION
+		request.Version = VERSION
 	}
 
 	response.Status = "ok"
@@ -193,6 +195,7 @@ func (self *Api) Do(request *Request) (*Response, error) {
 
 		case "create_crawl":
 			// {"method":"create_crawl","params":{"username":"sjsafranek@gmail.com","name":"12 bars","longitude":-123.088000,"latitude":44.046174}}
+			logger.Info(request)
 			return self.fetchUser(request, func(user *database.User) error {
 				venues, err := self.foursquare.SearchVenues(request.Params.Longitude, request.Params.Latitude, searchCategeories)
 				if nil != err {
