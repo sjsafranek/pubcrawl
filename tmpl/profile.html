@@ -138,7 +138,8 @@
             var App = function() {
 
                 this.elements = {
-
+                    crawlList: $('.pub-crawls'),
+                    venueList: $('.pub-crawl-venues')
                 }
 
                 this.map = L.map('map').setView([0, 0], 2);
@@ -151,7 +152,10 @@
                 }).addTo(this.map);
 
                 this.venuesLayer;
+            }
 
+            App.prototype.getElement = function(key) {
+                return this.elements[key];
             }
 
             App.prototype.moveTo = function(venue) {
@@ -159,6 +163,16 @@
                                 lng: venue.location.lng,
                                 lat:venue.location.lat
                             }, 17);
+            }
+
+            App.prototype._createCrawlListItem = function(crawl) {
+                var self = this;
+                return $('<a>', {href:'#'})
+                            .addClass('list-group-item list-group-item-action')
+                            .append(crawl.name||crawl.id)
+                            .on('click', function(e) {
+                                self.updatePubCrawlVenues(crawl.id);
+                            });
             }
 
             App.prototype.updatePubCrawls = function() {
@@ -169,15 +183,11 @@
                 	},
                 	function(err, res) {
                 		if(err) throw(err);
-                        $('.pub-crawls').empty();
-                        res.data.crawls && $('.pub-crawls').append(
+                        var $listElem = self.getElement('crawlList');
+                        $listElem.empty();
+                        res.data.crawls && $listElem.append(
                             res.data.crawls.map(function(crawl) {
-                                return $('<a>', {href:'#'})
-                                            .addClass('list-group-item list-group-item-action')
-                                            .append(crawl.name||crawl.id)
-                                            .on('click', function(e) {
-                                                self.updatePubCrawlVenues(crawl.venues);
-                                            });
+                                return self._createCrawlListItem(crawl);
                             })
                         );
                     }
@@ -195,9 +205,9 @@
                         fill: color,
                         weight: 1.5
                     });
-            },
+            }
 
-            App.prototype._createListItem = function(venue) {
+            App.prototype._createVenueListItem = function(venue) {
                 var self = this;
                 return $('<a>', {href:'#', id: venue.id})
                             .addClass('list-group-item list-group-item-action')
@@ -217,24 +227,28 @@
                                     $(layer._path).removeClass('throbPath');
                                 });
                             })
-            },
+            }
 
-            App.prototype.updatePubCrawlVenues = function(venues) {
+            App.prototype._updateVenueList = function(venues) {
                 var self = this;
+                var $listElem = self.getElement('venueList');
+                $listElem.empty();
 
-                $('.pub-crawl-venues').empty();
-
-                venues.visited && $('.pub-crawl-venues').append(
+                venues.visited && $listElem.append(
                     venues.visited.map(function(venue){
-                        return self._createListItem(venue, 'visited').addClass('disabled');
+                        return self._createVenueListItem(venue, 'visited').addClass('disabled');
                     })
                 );
 
-                venues.unvisited && $('.pub-crawl-venues').append(
+                venues.unvisited && $listElem.append(
                     venues.unvisited.map(function(venue){
-                        return self._createListItem(venue, 'unvisited');
+                        return self._createVenueListItem(venue, 'unvisited');
                     })
                 );
+            }
+
+            App.prototype._updateVenuesLayer = function(venues) {
+                var self = this;
 
                 this.venuesLayer && this.venuesLayer.remove();
 
@@ -242,7 +256,6 @@
 
                 features = features.concat(
                     venues.visited ? venues.visited.map(function(venue) {
-                        // return self._createMarker(venue, 'visited');
                         venue.visited = true;
                         return {
                             "type": "Feature",
@@ -256,7 +269,6 @@
 
                 features = features.concat(
                     venues.unvisited ? venues.unvisited.map(function(venue) {
-                        // return self._createMarker(venue, 'unvisited');
                         venue.visited = false;
                         return {
                             "type": "Feature",
@@ -268,8 +280,6 @@
                         }
                     }) : []);
 
-
-                // this.venuesLayer = L.featureGroup(features).addTo(this.map);
                 this.venuesLayer = L.geoJson({"features": features}, {
                     pointToLayer: function(feature, latlng) {
                         return self._createMarker(feature.properties);
@@ -289,9 +299,26 @@
 
                         }
                     });
+
                 this.venuesLayer.addTo(this.map);
                 this.map.fitBounds(this.venuesLayer.getBounds());
+            }
 
+            App.prototype.updatePubCrawlVenues = function(crawl_id) {
+                var self = this;
+                api.fetch(
+                    {
+                        "method": "get_venues",
+                        "params": {
+                            "crawl_id": crawl_id
+                        }
+                    },
+                    function(err, res) {
+                        if(err) throw(err);
+                        self._updateVenueList(res.data.venues);
+                        self._updateVenuesLayer(res.data.venues);
+                    }
+                );
             }
 
 

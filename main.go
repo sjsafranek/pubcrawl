@@ -52,6 +52,7 @@ func main() {
 				"get_crawl",
 				"get_crawls",
 				"delete_crawl",
+				"get_venues",
 				"up_vote",
 				"down_vote",
 			},

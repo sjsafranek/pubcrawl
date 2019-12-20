@@ -257,6 +257,23 @@ func (self *Api) Do(request *Request) (*Response, error) {
 				return crawl.Delete()
 			})
 
+		case "get_venues":
+			// {"method":"get_venues","params":{"username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10"}}
+			return self.fetchUser(request, func(user *database.User) error {
+				crawl, err := user.GetCrawl(request.Params.CrawlId)
+				if nil != err {
+					return err
+				}
+
+				venues, err := crawl.GetVenues()
+				if nil != err {
+					return err
+				}
+				response.Data.Venues = venues
+
+				return nil
+			})
+
 		case "up_vote":
 			// {"method":"up_vote","params":{"username":"sjsafranek@gmail.com","crawl_id":"62b6eacf-bc9a-1201-ad99-70e35fb00b10", "venue_id":""}}
 			return self.fetchUser(request, func(user *database.User) error {

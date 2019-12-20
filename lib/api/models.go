@@ -46,6 +46,7 @@ type ResponseData struct {
 	User   *database.User    `json:"user,omitempty"`
 	Crawl  *database.Crawl   `json:"crawl,omitempty"`
 	Crawls []*database.Crawl `json:"crawls,omitempty"`
+	Venues *database.CrawlVenues  `json:"venues,omitempty"`
 }
 
 type Response struct {

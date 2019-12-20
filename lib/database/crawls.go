@@ -16,7 +16,7 @@ type Crawl struct {
 	IsDeleted       bool        `json:"is_deleted"`
 	CreatedAt       time.Time   `json:"created_at,string"`
 	UpdatedAt       time.Time   `json:"updated_at,string"`
-	Venues          CrawlVenues `json:"venues"`
+	// Venues          CrawlVenues `json:"venues"`
 	db              *Database   `json:"-"`
 }
 
@@ -64,9 +64,9 @@ func (self *Crawl) AddVenues(venues []foursquare.Venue) error {
 
 func (self *Crawl) GetVenues() (*CrawlVenues, error) {
 
-	if 0 != len(self.Venues.Unvisited) || 0 != len(self.Venues.Visited) {
-		return &self.Venues, nil
-	}
+	// if 0 != len(self.Venues.Unvisited) || 0 != len(self.Venues.Visited) {
+	// 	return &self.Venues, nil
+	// }
 
 	var venues CrawlVenues
 
@@ -85,7 +85,7 @@ func (self *Crawl) GetVenues() (*CrawlVenues, error) {
 	}
 	venues.Unmarshal(temp)
 
-	self.Venues = venues
+	// self.Venues = venues
 
 	return &venues, nil
 }
