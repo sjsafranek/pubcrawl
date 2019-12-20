@@ -211,8 +211,11 @@
                 var self = this;
                 venue = data.venue;
                 return $('<a>', {href:'#', id: venue.id})
-                            .addClass('list-group-item list-group-item-action')
-                            .append(venue.name||venue.id)
+                            .addClass('list-group-item list-group-item-action d-flex justify-content-between align-items-center')
+                            .append(
+                                venue.name||venue.id,
+                                $('<span>').addClass('badge badge-primary badge-pill').append(data.up_votes-data.down_votes)
+                            )
                             .on('click', function(e) {
                                 self.moveTo(venue);
                             })
