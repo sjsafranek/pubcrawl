@@ -61,7 +61,12 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			request.Params.Apikey = ""
 
 			logger.Info(string(body))
-			logger.Info(request)
+			// logger.Info(request)
+
+			if !conf.Api.IsPublicMethod(request.Method) {
+				logger.Warnf("Not a public api method: %v", request.Method)
+				return http.StatusMethodNotAllowed, errors.New(http.StatusText(http.StatusMethodNotAllowed))
+			}
 
 			// run api request
 			response, err := rpcApi.Do(&request)

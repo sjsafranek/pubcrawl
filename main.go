@@ -39,15 +39,23 @@ var (
 	DATABASE_PORT            int64  = DEFAULT_DATABASE_PORT
 	API_REQUEST              string = ""
 	rpcApi                   *api.Api
+	conf 					 *config.Config
 )
 
 // main creates and starts a Server listening.
 func main() {
 	// read credentials from environment variables if available
-	conf := &config.Config{
-		// Api: config.Api{
-		// 	PublicMethods: []string{"up_vote", "down_vote"},
-		// },
+	conf = &config.Config{
+		Api: config.Api{
+			PublicMethods: []string{
+				"create_crawl",
+				"get_crawl",
+				"get_crawls",
+				"delete_crawl",
+				"up_vote",
+				"down_vote",
+			},
+		},
 		Facebook: config.Facebook{
 			ClientID:     FACEBOOK_CLIENT_ID,
 			ClientSecret: FACEBOOK_CLIENT_SECRET,
