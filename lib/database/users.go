@@ -6,7 +6,6 @@ import (
 	"errors"
 	"strings"
 	"time"
-
 	// "github.com/sjsafranek/logger"
 )
 
@@ -162,7 +161,7 @@ func (self *User) GetCrawls() ([]*Crawl, error) {
 
 	var temp string
 	err := self.db.QueryRow(query, self.Username).Scan(&temp)
-	if nil != err  {
+	if nil != err {
 		return crawls, checkError(err)
 	}
 

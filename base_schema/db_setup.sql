@@ -68,7 +68,15 @@ CREATE OR REPLACE VIEW votes_view AS (
 		venues.visited AS visited,
 		venues.crawl_id AS crawl_id,
 		venues.id AS venue_id,
-		upv.votes - dnv.votes AS votes
+		upv.votes AS up_votes,
+		dnv.votes AS down_votes,
+		upv.votes - dnv.votes AS votes,
+		json_build_object(
+			'venue_id', venues.id,
+			'up_votes', upv.votes,
+			'down_votes', dnv.votes,
+			'votes', upv.votes - dnv.votes
+		) AS jdata
 	FROM venues
 	LEFT JOIN upv
 		ON upv.crawl_id = venues.crawl_id
