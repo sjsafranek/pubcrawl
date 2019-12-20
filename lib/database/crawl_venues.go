@@ -1,6 +1,7 @@
 package database
 
 import (
+	"time"
 	"encoding/json"
 
 	"github.com/sjsafranek/pubcrawl/lib/foursquare"
@@ -8,19 +9,17 @@ import (
 
 type Venue foursquare.Venue
 
-type VenueVotes struct {
-	VenueId   string `json:"venue_id"`
-	UpVotes   int    `json:"up_votes"`
-	DownVotes int    `json:"down_votes"`
-	Votes     int    `json:"votes"`
+type CrawlVenue struct {
+	VenueId   string    `json:"venue_id"`
+	Visited   bool      `json:"visited"`
+	UpVotes   int       `json:"up_votes"`
+	DownVotes int       `json:"down_votes"`
+	Venue    	*Venue  `json:"venue"`
+	CreatedAt time.Time `json:"created_at,string"`
+	UpdatedAt time.Time `json:"updated_at,string"`
 }
 
-type CrawlVenues struct {
-	Next      []string      `json:"next"`
-	Visited   []*Venue      `json:"visited"`
-	Unvisited []*Venue      `json:"unvisited"`
-	Votes     []*VenueVotes `json:"votes"`
-}
+type CrawlVenues []*CrawlVenue
 
 func (self *CrawlVenues) Marshal() (string, error) {
 	b, err := json.Marshal(self)

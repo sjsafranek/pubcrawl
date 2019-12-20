@@ -197,8 +197,8 @@
             App.prototype._createMarker = function(venue) {
                 var color = venue.visited ? 'red' : 'blue';
                 return L.circleMarker({
-                        lng: venue.location.lng,
-                        lat: venue.location.lat
+                        lng: venue.venue.location.lng,
+                        lat: venue.venue.location.lat
                     }, {
                         radius: 5,
                         color: color,
@@ -207,8 +207,9 @@
                     });
             }
 
-            App.prototype._createVenueListItem = function(venue) {
+            App.prototype._createVenueListItem = function(data) {
                 var self = this;
+                venue = data.venue;
                 return $('<a>', {href:'#', id: venue.id})
                             .addClass('list-group-item list-group-item-action')
                             .append(venue.name||venue.id)
@@ -229,20 +230,13 @@
                             })
             }
 
-            App.prototype._updateVenueList = function(venues) {
+            App.prototype._updateVenueList = function(venues) {``
                 var self = this;
                 var $listElem = self.getElement('venueList');
                 $listElem.empty();
-
-                venues.visited && $listElem.append(
-                    venues.visited.map(function(venue){
-                        return self._createVenueListItem(venue, 'visited').addClass('disabled');
-                    })
-                );
-
-                venues.unvisited && $listElem.append(
-                    venues.unvisited.map(function(venue){
-                        return self._createVenueListItem(venue, 'unvisited');
+                $listElem.append(
+                    venues.map(function(venue){
+                        return self._createVenueListItem(venue, venue.visisted ? 'visited' : 'unvisisted').addClass( venue.visisted ? 'disabled' : '' );
                     })
                 );
             }
@@ -252,49 +246,33 @@
 
                 this.venuesLayer && this.venuesLayer.remove();
 
-                var features = [];
-
-                features = features.concat(
-                    venues.visited ? venues.visited.map(function(venue) {
-                        venue.visited = true;
-                        return {
-                            "type": "Feature",
-                            "geometry": {
-                                "type": "Point",
-                                "coordinates": [venue.location.lng, venue.location.lat]
-                            },
-                            "properties": venue
-                        }
-                    }) : []);
-
-                features = features.concat(
-                    venues.unvisited ? venues.unvisited.map(function(venue) {
-                        venue.visited = false;
-                        return {
-                            "type": "Feature",
-                            "geometry": {
-                                "type": "Point",
-                                "coordinates": [venue.location.lng, venue.location.lat]
-                            },
-                            "properties": venue
-                        }
-                    }) : []);
+                var features = venues.map(function(venue) {
+                    return {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [venue.venue.location.lng, venue.venue.location.lat]
+                        },
+                        "properties": venue
+                    }
+                }) || [];
 
                 this.venuesLayer = L.geoJson({"features": features}, {
                     pointToLayer: function(feature, latlng) {
                         return self._createMarker(feature.properties);
                     },
                     onEachFeature: function (feature, layer) {
-                        layer.venue_id = feature.properties.id;
+                        var venue_id = feature.properties.venue_id;
+                        layer.venue_id = venue_id;
                         layer
                             .on('click', function(e){
-                                $('.pub-crawl-venues').scrollTo("#"+feature.properties.id, 800);
+                                $('.pub-crawl-venues').scrollTo("#"+venue_id, 800);
                             })
                             .on('mouseover', function(e) {
-                                $('#'+feature.properties.id).addClass('pulsate');
+                                $('#'+venue_id).addClass('pulsate');
                             })
                             .on('mouseout', function(e) {
-                                $('#'+feature.properties.id).removeClass('pulsate');
+                                $('#'+venue_id).removeClass('pulsate');
                             });
 
                         }

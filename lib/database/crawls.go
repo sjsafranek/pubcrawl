@@ -9,15 +9,15 @@ import (
 )
 
 type Crawl struct {
-	ID              string      `json:"id"`
-	Name            string      `json:"name"`
-	Owner           string      `json:"owner"`
-	MaxVotesPerUser int         `json:"max_votes_per_user"`
-	IsDeleted       bool        `json:"is_deleted"`
-	CreatedAt       time.Time   `json:"created_at,string"`
-	UpdatedAt       time.Time   `json:"updated_at,string"`
+	ID              string    `json:"id"`
+	Name            string    `json:"name"`
+	Owner           string    `json:"owner"`
+	MaxVotesPerUser int       `json:"max_votes_per_user"`
+	IsDeleted       bool      `json:"is_deleted"`
+	CreatedAt       time.Time `json:"created_at,string"`
+	UpdatedAt       time.Time `json:"updated_at,string"`
 	// Venues          CrawlVenues `json:"venues"`
-	db              *Database   `json:"-"`
+	db *Database `json:"-"`
 }
 
 func (self *Crawl) Marshal() (string, error) {
