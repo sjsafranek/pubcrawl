@@ -46,6 +46,8 @@ func (self *Database) GetVersion() (string, error) {
 func (self *Database) getUser(query string, args ...interface{}) (*User, error) {
 	var user User
 
+	logger.Debug(query, args)
+
 	var temp string
 	err := self.db.QueryRow(query, args...).Scan(&temp)
 	if nil != err {

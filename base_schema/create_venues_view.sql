@@ -1,4 +1,4 @@
-\
+
 DROP VIEW IF EXISTS venues_view CASCADE;
 CREATE OR REPLACE VIEW venues_view AS (
     SELECT

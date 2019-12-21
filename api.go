@@ -10,31 +10,10 @@ import (
 	"github.com/sjsafranek/pubcrawl/lib/api"
 )
 
-// # /api/v1/crawl?longitude=-123.088000&latitude=44.046174
-
-// const (
-// 	CategoryBrewery string = "brewery"
-// 	CategoryBar     string = "bar"
-// )
-//
-// var categoryName = map[string]string{
-// 	CategoryBrewery: "50327c8591d4c4b30a586d5d",
-// 	CategoryBar:     "4bf58dd8d48988d116941735",
-// }
-//
-// func CategoryCode(name string) string {
-// 	return categoryName[name]
-// }
-//
-// var searchCategeories = []string{"50327c8591d4c4b30a586d5d", "4bf58dd8d48988d116941735"}
-
 func apiHandler(w http.ResponseWriter, r *http.Request) {
 	var data string
 
 	val, _ := sessionManager.Get(r)
-	// username := val.Values["username"].(string)
-	// usertype := val.Values["usertype"].(string)
-	// userid := val.Values["userid"].(string)
 	useremail := val.Values["useremail"].(string)
 	if 0 == len(useremail) {
 		apiBasicResponse(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))

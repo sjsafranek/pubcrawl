@@ -99,8 +99,15 @@ func (self *User) IsPassword(password string) (bool, error) {
  * Social Accounts
  */
 // CreateSocialAccountIfNotExists
+// https://stackoverflow.com/questions/4069718/postgres-insert-if-does-not-exist-already
+// ON CONFLICT DO NOTHING/UPDATE
+// http://www.postgresqltutorial.com/postgresql-upsert/
 func (self *User) CreateSocialAccountIfNotExists(user_id, username, account_type string) error {
-	err := self.db.Insert("INSERT INTO social_accounts(id, name, type, email) VALUES($1, $2, $3, $4)", user_id, username, account_type, self.Username)
+	err := self.db.Insert(`
+		INSERT INTO social_accounts(id, name, type, email)
+			VALUES ($1, $2, $3, $4)
+				ON CONFLICT DO NOTHING;
+	`, user_id, username, account_type, self.Username)
 	if nil != err && strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
 		return nil
 	}
