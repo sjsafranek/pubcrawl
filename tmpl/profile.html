@@ -12,6 +12,10 @@
         <link rel="stylesheet" href="/static/leaflet/leaflet-1.6.0.css">
         <script src="/static/leaflet/leaflet-1.6.0.js"></script>
 
+        <!-- Utils Library -->
+        <script src="/static/js/utils.js"></script>
+        <script src="/static/js/geoutils.js"></script>
+
         <style>
 
             .body {
@@ -113,32 +117,61 @@
 
         <script>
 
-            function test() {
-            	api.fetch(
-            		{
-            			"method": "create_crawl",
-            			"params": {
-            				"longitude": -123.0880,
-            				"latitude": 44.046174,
-            				"name": "test"
-            			}
-            		},
-            		function(err, res) {
-            			console.log(err, res);
-            		}
-            	);
-            }
+            var app;
+
+            // function test() {
+            // 	api.fetch(
+            // 		{
+            // 			"method": "create_crawl",
+            // 			"params": {
+            // 				"longitude": -123.0880,
+            // 				"latitude": 44.046174,
+            // 				"name": "test"
+            // 			}
+            // 		},
+            // 		function(err, res) {
+            // 			console.log(err, res);
+            // 		}
+            // 	);
+            // }
 
 
 
             var App = function() {
+                var self = this;
 
                 this.elements = {
                     crawlList: $('.pub-crawls'),
                     venueList: $('.pub-crawl-venues')
                 }
 
+                // init map
+                this.popup = L.popup();
                 this.map = L.map('map').setView([0, 0], 2);
+                this.map.on('contextmenu', function(event) {
+                    var popup = self.getPopup();
+                    var $crawlNameInputElem = $('<input>', {type: 'text', placeholder: 'New pub crawl'});
+                    popup.setLatLng(event.latlng)
+                        .setContent(
+                            $('<div>').append(
+                                $crawlNameInputElem,
+                                $('<br>'),
+                                $('<button>')
+                                    .append('Create')
+                                    .on('click', function(e) {
+                                        popup.remove();
+                                        self.createCrawl(
+                                            $crawlNameInputElem.val(),
+                                            event.latlng.lng,
+                                            event.latlng.lat
+                                        )
+                                    })
+                            ).get(0)
+                        )
+                        .openOn(
+                            self.getMap()
+                        );
+                });
 
                 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
                     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -154,11 +187,30 @@
                 return this.elements[key];
             }
 
-            App.prototype.moveTo = function(venue) {
-                this.map.setView({
-                                lng: venue.location.lng,
-                                lat:venue.location.lat
-                            }, 17);
+            App.prototype.getMap = function() {
+                return this.map;
+            }
+
+            App.prototype.getPopup = function() {
+                return this.popup;
+            }
+
+            App.prototype.createCrawl = function(name, longitude, latitude) {
+                var self = this;
+                api.fetch(
+            		{
+            			"method": "create_crawl",
+            			"params": {
+            				"longitude": longitude,
+            				"latitude": latitude,
+            				"name": name
+            			}
+            		},
+            		function(err, res) {
+            			if (err) throw err;
+                        self.updatePubCrawls();
+                    }
+            	);
             }
 
             App.prototype._createCrawlListItem = function(crawl) {
@@ -205,7 +257,7 @@
 
             App.prototype._createVenueListItem = function(data) {
                 var self = this;
-                venue = data.venue;
+                var venue = data.venue;
                 return $('<a>', {href:'#', id: venue.id})
                             .addClass('list-group-item list-group-item-action d-flex justify-content-between align-items-center')
                             .append(
@@ -213,7 +265,11 @@
                                 $('<span>').addClass('badge badge-primary badge-pill').append(data.up_votes-data.down_votes)
                             )
                             .on('click', function(e) {
-                                self.moveTo(venue);
+                                console.log(venue);
+                                self.getMap().setView({
+                                                lng: venue.location.lng,
+                                                lat: venue.location.lat
+                                            }, 17);
                             })
                             .on('mouseover', function(e) {
                                 self.venuesLayer.eachLayer(function(layer) {
@@ -226,7 +282,7 @@
                                 self.venuesLayer.eachLayer(function(layer) {
                                     $(layer._path).removeClass('throbPath');
                                 });
-                            })
+                            });
             }
 
             App.prototype._updateVenueList = function(venues) {``
@@ -235,7 +291,7 @@
                 $listElem.empty();
                 $listElem.append(
                     venues.map(function(venue){
-                        return self._createVenueListItem(venue, venue.visisted ? 'visited' : 'unvisisted').addClass( venue.visisted ? 'disabled' : '' );
+                        return self._createVenueListItem(venue).addClass( venue.visisted ? 'disabled' : '' );
                     })
                 );
             }
@@ -277,8 +333,10 @@
                         }
                     });
 
-                this.venuesLayer.addTo(this.map);
-                this.map.fitBounds(this.venuesLayer.getBounds());
+
+                var map = this.getMap()
+                this.venuesLayer.addTo(map);
+                map.fitBounds(this.venuesLayer.getBounds());
             }
 
             App.prototype.updatePubCrawlVenues = function(crawl_id) {
@@ -300,8 +358,19 @@
 
 
 
-            var app = new App();
-            app.updatePubCrawls();
+            $(document).ready(function(event){
+                app = new App();
+                app.updatePubCrawls();
+                GeoUtils.getGeoLocation(function(err, coords){
+                    if (err) throw err;
+                    app.getMap().setView({
+                                    lng: coords.longitude,
+                                    lat: coords.latitude
+                                }, 13);
+                });
+            });
+
+
 
         </script>
 
