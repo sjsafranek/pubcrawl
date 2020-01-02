@@ -21,7 +21,6 @@ func New(conf *config.Config) *Api {
 		db:         database.New(dbConnStr),
 		cache:      ccache.Layered(ccache.Configure()),
 		foursquare: foursquare.New(conf.Foursquare.ClientID, conf.Foursquare.ClientSecret),
-		// PublicMethods: config.Api.PublicMethods,
 	}
 }
 
@@ -30,7 +29,6 @@ type Api struct {
 	db         *database.Database
 	cache      *ccache.LayeredCache
 	foursquare *foursquare.Client
-	// PublicMethods []string
 }
 
 func (self *Api) IsPublicMethod(method string) bool {

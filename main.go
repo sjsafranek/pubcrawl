@@ -39,7 +39,7 @@ var (
 	DATABASE_PORT            int64  = DEFAULT_DATABASE_PORT
 	API_REQUEST              string = ""
 	rpcApi                   *api.Api
-	conf 					 *config.Config
+	conf                     *config.Config
 )
 
 // main creates and starts a Server listening.

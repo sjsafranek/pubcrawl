@@ -42,11 +42,11 @@ func (self *Request) Unmarshal(data string) error {
 }
 
 type ResponseData struct {
-	Users  []*database.User  `json:"users,omitempty"`
-	User   *database.User    `json:"user,omitempty"`
-	Crawl  *database.Crawl   `json:"crawl,omitempty"`
-	Crawls []*database.Crawl `json:"crawls,omitempty"`
-	Venues *database.CrawlVenues  `json:"venues,omitempty"`
+	Users  []*database.User      `json:"users,omitempty"`
+	User   *database.User        `json:"user,omitempty"`
+	Crawl  *database.Crawl       `json:"crawl,omitempty"`
+	Crawls []*database.Crawl     `json:"crawls,omitempty"`
+	Venues *database.CrawlVenues `json:"venues,omitempty"`
 }
 
 type Response struct {
