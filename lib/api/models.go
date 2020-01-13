@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io"
 	"encoding/json"
 
 	"github.com/sjsafranek/pubcrawl/lib/database"
@@ -69,4 +70,13 @@ func (self *Response) Marshal() (string, error) {
 func (self *Response) SetError(err error) {
 	self.Status = "error"
 	self.Error = err.Error()
+}
+
+func (self *Response) Write(w io.Writer) error {
+	payload, err := self.Marshal()
+	if nil != err {
+		return err
+	}
+	_, err = fmt.Fprintln(w, payload)
+	return err
 }
