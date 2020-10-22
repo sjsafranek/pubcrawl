@@ -18,6 +18,8 @@ const (
 	PROJECT                   string = "PubCrawl"
 	VERSION                   string = "0.0.1"
 	DEFAULT_HTTP_PORT         int    = 8080
+	DEFAULT_HTTP_HOST string = "localhost"
+	DEFAULT_HTTP_PROTOCOL string = "http"
 	DEFAULT_DATABASE_ENGINE   string = "postgres"
 	DEFAULT_DATABASE_DATABASE string = "crawldb"
 	DEFAULT_DATABASE_PASSWORD string = "dev"
@@ -59,10 +61,11 @@ func main() {
 				"down_vote",
 			},
 		},
-		// Facebook: config.Facebook{
-		// 	ClientID:     FACEBOOK_CLIENT_ID,
-		// 	ClientSecret: FACEBOOK_CLIENT_SECRET,
-		// },
+		Server: config.Server{
+			HttpPort: DEFAULT_HTTP_PORT,
+			HttpHost: DEFAULT_HTTP_HOST,
+			HttpProtocol: DEFAULT_HTTP_PROTOCOL,
+		},
 		Foursquare: config.Foursquare{
 			ClientID:     FOURSQUARE_CLIENT_ID,
 			ClientSecret: FOURSQUARE_CLIENT_SECRET,
@@ -96,7 +99,7 @@ func main() {
 	flag.StringVar(&conf.Foursquare.ClientID, "foursquare-client-id", FOURSQUARE_CLIENT_ID, "Foursquare Client ID")
 	flag.StringVar(&conf.Foursquare.ClientSecret, "foursquare-client-secret", FOURSQUARE_CLIENT_SECRET, "Foursquare Client Secret")
 	flag.BoolVar(&printVersion, "V", false, "Print version and exit")
-	flag.IntVar(&conf.Server.HttpPort, "httpport", DEFAULT_HTTP_PORT, "Server port")
+	flag.IntVar(&conf.Server.HttpPort, "httpport", conf.Server.HttpPort, "Server port")
 	flag.StringVar(&conf.Database.DatabaseHost, "dbhost", DEFAULT_DATABASE_HOST, "database host")
 	flag.StringVar(&conf.Database.DatabaseName, "dbname", DEFAULT_DATABASE_DATABASE, "database name")
 	flag.StringVar(&conf.Database.DatabasePass, "dbpass", DEFAULT_DATABASE_PASSWORD, "database password")

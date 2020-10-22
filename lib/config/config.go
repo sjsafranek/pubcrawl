@@ -28,13 +28,14 @@ func (self *Api) IsPublicMethod(method string) bool {
 
 type Server struct {
 	HttpPort int
+	HttpHost string
+	HttpProtocol string
 }
 
-// type Facebook struct {
-// 	ClientID     string
-// 	ClientSecret string
-// }
-//
+func (self *Server) GetURLString() string {
+	return fmt.Sprintf("%v://%v:%v", self.HttpProtocol, self.HttpHost, self.HttpPort)
+}
+
 type Foursquare struct {
 	ClientID     string
 	ClientSecret string

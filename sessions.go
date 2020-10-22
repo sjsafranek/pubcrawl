@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/sjsafranek/gosocialsessions"
@@ -26,17 +27,6 @@ func New(conf *config.Config) *http.ServeMux {
 	// Static files
 	fsvr := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fsvr))
-	//
-	// // get facebook login handlers
-	// loginHandler, callbackHandler := sessionManager.GetFacebookLoginHandlers(
-	// 	conf.Facebook.ClientID,
-	// 	conf.Facebook.ClientSecret,
-	// 	"http://localhost:8080/facebook/callback")
-	//
-	// // attach facebook login handlers to mux
-	// mux.Handle("/facebook/login", middleware.Attach(loginHandler))
-	// mux.Handle("/facebook/callback", middleware.Attach(callbackHandler))
-
 
 	// Enable FaceBook login
 	if conf.OAuth2.HasFacebook() {
@@ -44,7 +34,7 @@ func New(conf *config.Config) *http.ServeMux {
 		loginHandler, callbackHandler := sessionManager.GetFacebookLoginHandlers(
 			conf.OAuth2.Facebook.ClientID,
 			conf.OAuth2.Facebook.ClientSecret,
-			"http://localhost:8080/facebook/callback")
+			fmt.Sprintf("%v/facebook/callback", conf.Server.GetURLString()))
 
 		// attach facebook login handlers to mux
 		mux.Handle("/facebook/login", middleware.Attach(loginHandler))
@@ -56,14 +46,12 @@ func New(conf *config.Config) *http.ServeMux {
 		loginHandler, callbackHandler := sessionManager.GetGoogleLoginHandlers(
 			conf.OAuth2.Google.ClientID,
 			conf.OAuth2.Google.ClientSecret,
-			"http://localhost:8080/google/callback")
+			fmt.Sprintf("%v/google/callback", conf.Server.GetURLString()))
 
 		// attach facebook login handlers to mux
 		mux.Handle("/google/login", middleware.Attach(loginHandler))
 		mux.Handle("/google/callback", middleware.Attach(callbackHandler))
 	}
-
-
 
 	// websockets
 	hub, _ := websockets.New(rpcApi)

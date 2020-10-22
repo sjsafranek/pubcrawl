@@ -119,24 +119,6 @@
 
             var app;
 
-            // function test() {
-            // 	api.fetch(
-            // 		{
-            // 			"method": "create_crawl",
-            // 			"params": {
-            // 				"longitude": -123.0880,
-            // 				"latitude": 44.046174,
-            // 				"name": "test"
-            // 			}
-            // 		},
-            // 		function(err, res) {
-            // 			console.log(err, res);
-            // 		}
-            // 	);
-            // }
-
-
-
             var App = function() {
                 var self = this;
 
@@ -197,7 +179,7 @@
 
             App.prototype.createCrawl = function(name, longitude, latitude) {
                 var self = this;
-                api.fetch(
+                api.do(
             		{
             			"method": "create_crawl",
             			"params": {
@@ -225,7 +207,7 @@
 
             App.prototype.updatePubCrawls = function() {
                 var self = this;
-                api.fetch(
+                api.do(
                 	{
                 		"method": "get_crawls"
                 	},
@@ -255,7 +237,7 @@
                     });
             }
 
-            App.prototype._createVenueListItem = function(data) {
+            App.prototype._createVenueListItem = function(crawl_id, data) {
                 var self = this;
                 var venue = data.venue;
                 return $('<a>', {href:'#', id: venue.id})
@@ -282,21 +264,50 @@
                                 self.venuesLayer.eachLayer(function(layer) {
                                     $(layer._path).removeClass('throbPath');
                                 });
+                            })
+                            .on('contextmenu', function(e) {
+                                e.preventDefault();
+
+                                Swal.fire({
+                                        title: 'Vote: ' + (venue.name||venue.id),
+                                        input: 'select',
+                                        inputOptions: {
+                                            "Up": "Up",
+                                            "Down": "Down"
+                                        },
+                                        inputPlaceholder: 'Select an option',
+                                        showCancelButton: true
+                                    })
+                                    .then(function(result) {
+                                        if (result.value) {
+                                            api.do({
+                                                "method": ("Up" == result.value ? "up_vote" : "down_vote"),
+                                                "params": {
+                                                    "crawl_id": crawl_id,
+                                                    "venue_id": venue.id
+                                                }
+                                            }, function(err, res) {
+                                                if (err) throw err;
+                                                self.updatePubCrawlVenues(crawl_id);
+                                            });
+                                        }
+                                    });
+
                             });
             }
 
-            App.prototype._updateVenueList = function(venues) {``
+            App.prototype._updateVenueList = function(crawl_id, venues) {``
                 var self = this;
                 var $listElem = self.getElement('venueList');
                 $listElem.empty();
                 $listElem.append(
                     venues.map(function(venue){
-                        return self._createVenueListItem(venue).addClass( venue.visisted ? 'disabled' : '' );
+                        return self._createVenueListItem(crawl_id, venue).addClass( venue.visisted ? 'disabled' : '' );
                     })
                 );
             }
 
-            App.prototype._updateVenuesLayer = function(venues) {
+            App.prototype._updateVenuesLayer = function(crawl_id, venues) {
                 var self = this;
 
                 this.venuesLayer && this.venuesLayer.remove();
@@ -341,7 +352,7 @@
 
             App.prototype.updatePubCrawlVenues = function(crawl_id) {
                 var self = this;
-                api.fetch(
+                api.do(
                     {
                         "method": "get_venues",
                         "params": {
@@ -350,12 +361,11 @@
                     },
                     function(err, res) {
                         if(err) throw(err);
-                        self._updateVenueList(res.data.venues);
-                        self._updateVenuesLayer(res.data.venues);
+                        self._updateVenueList(crawl_id, res.data.venues);
+                        self._updateVenuesLayer(crawl_id, res.data.venues);
                     }
                 );
             }
-
 
 
             $(document).ready(function(event){
