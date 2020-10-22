@@ -2,6 +2,7 @@ package api
 
 import (
 	"io"
+	"fmt"
 	"encoding/json"
 
 	"github.com/sjsafranek/pubcrawl/lib/database"
@@ -22,11 +23,11 @@ type BatchRequest []Request
 type Request struct {
 	Method  string `json:"method"`
 	Version string `json:"version"`
-	Params  Params `json:"params"`
+	Params  *RequestParams `json:"params"`
 	Id      string `json:"id,ompitempty"`
 }
 
-type Params struct {
+type RequestParams struct {
 	Email     string  `json:"email,omitempty"`
 	Username  string  `json:"username,omitempty"`
 	Password  string  `json:"password,omitempty"`

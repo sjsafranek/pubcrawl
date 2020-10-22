@@ -8,6 +8,10 @@
 		// this.init();
 	}
 
+	Api.prototype.do = function(data, callback) {
+		return this.fetch(data, callback);
+	}
+
 	Api.prototype.fetch = function(data, callback) {
 		// try websocket
 		if (this.ws && WebSocket.OPEN == this.ws.readyState) {

@@ -15,8 +15,9 @@ type User struct {
 	Email       string    `json:"email"`
 	Apikey      string    `json:"apikey,omitempty"`
 	SecretToken string    `json:"secret_token,omitempty"`
-	IsActive    bool      `json:"is_active"`
 	IsDeleted   bool      `json:"is_deleted"`
+	IsActive    bool      `json:"is_active"`
+	IsSuperuser bool	  `json:"is_superuser"`
 	CreatedAt   time.Time `json:"created_at,string"`
 	UpdatedAt   time.Time `json:"updated_at,string"`
 	db          *Database `json:"-"`
@@ -113,6 +114,7 @@ func (self *User) CreateSocialAccountIfNotExists(user_id, username, account_type
 	}
 	return nil
 }
+
 
 /**
  * APP FUNCTIONS

@@ -27,8 +27,10 @@ const (
 )
 
 var (
-	FACEBOOK_CLIENT_ID       string = os.Getenv("FACEBOOK_CLIENT_ID")
-	FACEBOOK_CLIENT_SECRET   string = os.Getenv("FACEBOOK_CLIENT_SECRET")
+	FACEBOOK_CLIENT_ID     string = os.Getenv("FACEBOOK_CLIENT_ID")
+	FACEBOOK_CLIENT_SECRET string = os.Getenv("FACEBOOK_CLIENT_SECRET")
+	GOOGLE_CLIENT_ID       string = os.Getenv("GOOGLE_CLIENT_ID")
+	GOOGLE_CLIENT_SECRET   string = os.Getenv("GOOGLE_CLIENT_SECRET")
 	FOURSQUARE_CLIENT_ID     string = os.Getenv("FOURSQUARE_CLIENT_ID")
 	FOURSQUARE_CLIENT_SECRET string = os.Getenv("FOURSQUARE_CLIENT_SECRET")
 	DATABASE_ENGINE          string = DEFAULT_DATABASE_ENGINE
@@ -57,13 +59,23 @@ func main() {
 				"down_vote",
 			},
 		},
-		Facebook: config.Facebook{
-			ClientID:     FACEBOOK_CLIENT_ID,
-			ClientSecret: FACEBOOK_CLIENT_SECRET,
-		},
+		// Facebook: config.Facebook{
+		// 	ClientID:     FACEBOOK_CLIENT_ID,
+		// 	ClientSecret: FACEBOOK_CLIENT_SECRET,
+		// },
 		Foursquare: config.Foursquare{
 			ClientID:     FOURSQUARE_CLIENT_ID,
 			ClientSecret: FOURSQUARE_CLIENT_SECRET,
+		},
+		OAuth2: config.OAuth2{
+			Facebook: config.SocialOAuth2{
+				ClientID:     FACEBOOK_CLIENT_ID,
+				ClientSecret: FACEBOOK_CLIENT_SECRET,
+			},
+			Google: config.SocialOAuth2{
+				ClientID:     GOOGLE_CLIENT_ID,
+				ClientSecret: GOOGLE_CLIENT_SECRET,
+			},
 		},
 		Database: config.Database{
 			DatabaseEngine: DATABASE_ENGINE,
@@ -77,8 +89,10 @@ func main() {
 
 	// allow consumer credential flags to override config fields
 	var printVersion bool
-	flag.StringVar(&conf.Facebook.ClientID, "facebook-client-id", FACEBOOK_CLIENT_ID, "Facebook Client ID")
-	flag.StringVar(&conf.Facebook.ClientSecret, "facebook-client-secret", FACEBOOK_CLIENT_SECRET, "Facebook Client Secret")
+	flag.StringVar(&conf.OAuth2.Facebook.ClientID, "facebook-client-id", FACEBOOK_CLIENT_ID, "Facebook Client ID")
+	flag.StringVar(&conf.OAuth2.Facebook.ClientSecret, "facebook-client-secret", FACEBOOK_CLIENT_SECRET, "Facebook Client Secret")
+	flag.StringVar(&conf.OAuth2.Google.ClientID, "gmail-client-id", GOOGLE_CLIENT_ID, "Google Client ID")
+	flag.StringVar(&conf.OAuth2.Google.ClientSecret, "gmail-client-secret", GOOGLE_CLIENT_SECRET, "Google Client Secret")
 	flag.StringVar(&conf.Foursquare.ClientID, "foursquare-client-id", FOURSQUARE_CLIENT_ID, "Foursquare Client ID")
 	flag.StringVar(&conf.Foursquare.ClientSecret, "foursquare-client-secret", FOURSQUARE_CLIENT_SECRET, "Foursquare Client Secret")
 	flag.BoolVar(&printVersion, "V", false, "Print version and exit")
@@ -90,13 +104,6 @@ func main() {
 	flag.Int64Var(&conf.Database.DatabasePort, "dbport", DEFAULT_DATABASE_PORT, "Database port")
 	flag.StringVar(&API_REQUEST, "query", "", "Api query to execute")
 	flag.Parse()
-
-	if conf.Facebook.ClientID == "" {
-		log.Fatal("Missing Facebook Client ID")
-	}
-	if conf.Facebook.ClientSecret == "" {
-		log.Fatal("Missing Facebook Client Secret")
-	}
 
 	rpcApi = api.New(conf)
 

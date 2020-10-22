@@ -64,7 +64,7 @@ func (self *Database) getUser(query string, args ...interface{}) (*User, error) 
 }
 
 func (self *Database) CreateUser(email, username string) (*User, error) {
-	query := `
+	return self.getUser( `
 		INSERT INTO users (email, username) VALUES ($1, $2) RETURNING json_build_object(
 			'email', email,
 			'username', username,
@@ -72,11 +72,10 @@ func (self *Database) CreateUser(email, username string) (*User, error) {
 			'secret_token', secret_token,
 			'is_active', is_active,
 			'is_deleted', is_deleted,
+			'is_superuser', is_superuser,
 			'created_at', to_char(created_at, 'YYYY-MM-DD"T"HH:MI:SS"Z"'),
 			'updated_at', to_char(updated_at, 'YYYY-MM-DD"T"HH:MI:SS"Z"')
-		);
-	`
-	return self.getUser(query, email, username)
+		);`, email, username)
 }
 
 func (self *Database) CreateUserIfNotExists(email, username string) (*User, error) {
